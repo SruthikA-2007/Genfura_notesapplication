@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NoteSync - Simple Notes for Teams</title>
+    <!-- Google Fonts: Outfit & Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Outfit:wght@700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header class="header">
+        <div class="container nav-container">
+            <div class="logo">
+                <i class="fa-solid fa-note-sticky"></i>
+                <span>NoteSync</span>
+            </div>
+            <div class="nav-actions">
+                <button id="theme-toggle" class="btn-icon" title="Toggle Light/Dark Mode">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+                <button class="btn btn-secondary" id="login-btn">Login</button>
+                <button class="btn btn-primary" id="signup-btn">Sign Up</button>
+            </div>
+        </div>
+    </header>
+ 
+    <!-- Main Content -->
+    <main>
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="container">
+                <h1 class="hero-title">Collaborate & Create <span>Together</span></h1>
+                <p class="hero-subtitle">The easiest way for teams to share notes and stay in sync throughout the day.</p>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="features-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">Key Features</h2>
+                    <p>Everything you need to stay productive.</p>
+                </div>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon-wrapper">
+                            <i class="fa-solid fa-bolt"></i>
+                        </div>
+                        <h3 class="feature-title">Ultra Fast</h3>
+                        <p class="feature-desc">See your teammates' updates instantly as they happen.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon-wrapper">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <h3 class="feature-title">Secure</h3>
+                        <p class="feature-desc">Your notes are private and encrypted for your safety.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon-wrapper">
+                            <i class="fa-solid fa-star"></i>
+                        </div>
+                        <h3 class="feature-title">AI Powered</h3>
+                        <p class="feature-desc">Smart suggestions to help you organize your thoughts better.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How it Works -->
+        <section class="how-it-works">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">How It Works</h2>
+                </div>
+                <div class="steps-grid">
+                    <div class="step-item">
+                        <div class="step-num">1</div>
+                        <h3 class="step-title">Write</h3>
+                        <p class="step-desc">Create your first collaborative note.</p>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-num">2</div>
+                        <h3 class="step-title">Share</h3>
+                        <p class="step-desc">Invite your team with a simple link.</p>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-num">3</div>
+                        <h3 class="step-title">Sync</h3>
+                        <p class="step-desc">All edits are synced automatically.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Chatbot Widget -->
+    <div class="chatbot-container">
+        <!-- Chat Window -->
+        <div class="chat-window hidden">
+            <div class="chat-header">
+                NoteSync Support
+            </div>
+            <!-- Messages Area -->
+            <div class="chat-body" id="chat-messages">
+                <div class="message bot-message">
+                    👋 Welcome to the Notes Collaboration Platform! How can I help you today?
+                </div>
+            </div>
+            <!-- Input Area -->
+            <form class="chat-footer" id="chat-form">
+                <input type="text" id="chat-input" placeholder="Type a message..." required>
+                <button type="submit" class="chat-send-btn">Send</button>
+            </form>
+        </div>
+        <!-- Toggle Button -->
+        <button class="chatbot-toggle-btn">
+            <i class="fa-solid fa-comments"></i>
+        </button>
+    </div>
+
+    <!-- Custom Script -->
+    <script src="script.js"></script>
+</body>
+</html>
