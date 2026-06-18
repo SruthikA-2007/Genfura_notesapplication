@@ -5,28 +5,7 @@
 
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- 1. THEME TOGGLE LOGIC ---
-    const themeToggle = document.getElementById('theme-toggle');
-    const themeIcon = themeToggle.querySelector('i');
-    
-    // Check for saved theme in localStorage
-    if (localStorage.getItem('theme') === 'light') {
-        document.body.classList.add('light-mode');
-        themeIcon.classList.replace('fa-moon', 'fa-sun');
-    }
 
-    themeToggle.addEventListener('click', () => {
-        const isLight = document.body.classList.toggle('light-mode');
-        
-        // Update Icon and Save preference
-        if (isLight) {
-            themeIcon.classList.replace('fa-moon', 'fa-sun');
-            localStorage.setItem('theme', 'light');
-        } else {
-            themeIcon.classList.replace('fa-sun', 'fa-moon');
-            localStorage.setItem('theme', 'dark');
-        }
-    });
 
 
     // --- 2. CHATBOT TOGGLE LOGIC ---

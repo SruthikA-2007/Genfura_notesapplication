@@ -23,17 +23,7 @@
     --font-body: 'Inter', sans-serif;
 }
 
-/* Light Mode Theme Overrides */
-body.light-mode {
-    --primary-color: #4f46e5;
-    --primary-hover: #4338ca;
-    --secondary-color: #f8fafc;
-    --text-main: #1e293b;
-    --text-muted: #64748b;
-    --white: #ffffff;
-    --border-color: #e2e8f0;
-    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-}
+
 
 /* Base Reset */
 * {
@@ -50,22 +40,7 @@ body {
     transition: background-color 0.3s ease, color 0.3s ease; /* Smooth transition */
 }
 
-/* Icon Button (for theme toggle) */
-.btn-icon {
-    background: transparent;
-    border: none;
-    color: var(--text-main);
-    font-size: 1.25rem;
-    cursor: pointer;
-    padding: 5px 10px;
-    border-radius: 5px;
-    transition: 0.3s;
-    margin-right: 10px;
-}
 
-.btn-icon:hover {
-    background: rgba(129, 140, 248, 0.1);
-}
 
 .container {
     max-width: 1300px; /* Increased to reduce side margins */
