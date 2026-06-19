@@ -13,9 +13,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const chatWindow = document.querySelector('.chat-window');
 
     // When we click the button, show or hide the chat window
-    chatbotBtn.addEventListener('click', () => {
-        chatWindow.classList.toggle('hidden');
-    });
+    if (chatbotBtn && chatWindow) {
+        chatbotBtn.addEventListener('click', () => {
+            chatWindow.classList.toggle('hidden');
+        });
+    }
 
 
     // --- 3. CHAT MESSAGE LOGIC ---
@@ -35,59 +37,68 @@ document.addEventListener('DOMContentLoaded', () => {
         const messageDiv = document.createElement('div');
         messageDiv.classList.add('message', `${sender}-message`);
         messageDiv.textContent = text;
-        
+
         chatMessages.appendChild(messageDiv);
-        
+
         // Scroll to the latest message
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
     // Handle the "Send" action
-    chatForm.addEventListener('submit', (event) => {
-        event.preventDefault(); // Stop page from refreshing
-        
-        const messageText = chatInput.value.trim();
-        if (!messageText) return;
+    if (chatForm) {
+        chatForm.addEventListener('submit', (event) => {
+            event.preventDefault(); // Stop page from refreshing
 
-        // Display user message
-        addMessage(messageText, 'user');
-        chatInput.value = ""; // Clear input
+            const messageText = chatInput.value.trim();
+            if (!messageText) return;
 
-        // Bot Response logic
-        setTimeout(() => {
-            if (isFirstMessage) {
-                addMessage("Before we continue, please enter your First Name.", 'bot');
-                isFirstMessage = false;
-                waitingForFirstName = true;
-            } 
-            else if (waitingForFirstName) {
-                userFirstName = messageText;
-                waitingForFirstName = false;
-                waitingForLastName = true;
-                addMessage(`Thank you ${userFirstName}! Please enter your Last Name.`, 'bot');
-            } 
-            else if (waitingForLastName) {
-                userLastName = messageText;
-                waitingForLastName = false;
-                addMessage(`Nice to meet you, ${userFirstName} ${userLastName}! How can I assist you with your notes today?`, 'bot');
-            } 
-            else {
-                addMessage("Your request has been received. This feature will be connected to the notes system later.", 'bot');
-            }
-        }, 800);
-    });
+            // Display user message
+            addMessage(messageText, 'user');
+            chatInput.value = ""; // Clear input
+
+            // Bot Response logic
+            setTimeout(() => {
+                if (isFirstMessage) {
+                    addMessage("Before we continue, please enter your First Name.", 'bot');
+                    isFirstMessage = false;
+                    waitingForFirstName = true;
+                }
+                else if (waitingForFirstName) {
+                    userFirstName = messageText;
+                    waitingForFirstName = false;
+                    waitingForLastName = true;
+                    addMessage(`Thank you ${userFirstName}! Please enter your Last Name.`, 'bot');
+                }
+                else if (waitingForLastName) {
+                    userLastName = messageText;
+                    waitingForLastName = false;
+                    addMessage(`Nice to meet you, ${userFirstName} ${userLastName}! How can I assist you with your notes today?`, 'bot');
+                }
+                else {
+                    addMessage("Your request has been received. This feature will be connected to the notes system later.", 'bot');
+                }
+            }, 800);
+        });
+    }
 
 
-    // --- 3. LOGIN & SIGNUP POPUPS ---
+    // --- 3. LOGIN, SIGNUP & CONTACT POPUPS ---
+
     const loginBtn = document.getElementById('login-btn');
     const signupBtn = document.getElementById('signup-btn');
 
-    loginBtn.addEventListener('click', () => {
-        alert("Login feature coming soon!");
-    });
 
-    signupBtn.addEventListener('click', () => {
-        alert("Signup feature coming soon!");
-    });
+
+    if (loginBtn) {
+        loginBtn.addEventListener('click', () => {
+            alert("Login feature coming soon!");
+        });
+    }
+
+    if (signupBtn) {
+        signupBtn.addEventListener('click', () => {
+            alert("Signup feature coming soon!");
+        });
+    }
 
 });

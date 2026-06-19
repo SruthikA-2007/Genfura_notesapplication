@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - NoteSync</title>
+    <!-- Google Fonts: Outfit & Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Outfit:wght@700;800&display=swap"
+        rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .contact-section {
+            padding: 100px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: calc(100vh - 100px);
+        }
+
+        .contact-card {
+            background: var(--white);
+            padding: 50px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            width: 100%;
+            max-width: 600px;
+            box-shadow: var(--shadow);
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .contact-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-family: var(--font-heading);
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 12px 16px;
+            background: #0f172a;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-main);
+            font-family: var(--font-body);
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: var(--primary-color);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .contact-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .contact-header h1 {
+            font-family: var(--font-heading);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        .back-home {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
+            text-decoration: none;
+            margin-bottom: 20px;
+            transition: color 0.3s;
+        }
+
+        .back-home:hover {
+            color: var(--primary-color);
+        }
+
+        .error-message {
+            color: #fbbf24; /* Amber validation color */
+            font-size: 0.8rem;
+            margin-top: 4px;
+            display: none;
+            font-family: var(--font-body);
+        }
+
+        .form-group.error input,
+        .form-group.error select,
+        .form-group.error textarea {
+            /* Removed red border as requested */
+            border-color: var(--border-color);
+        }
+
+        .form-group.error .error-message {
+            display: block;
+        }
+
+        /* Table Styles */
+        .table-section {
+            margin-top: 80px;
+            padding-bottom: 100px;
+            overflow-x: auto;
+        }
+
+        .table-container {
+            background: var(--white);
+            border-radius: 15px;
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .records-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: var(--font-body);
+            color: var(--text-main);
+            min-width: 1000px;
+        }
+
+        .records-table th {
+            text-align: left;
+            padding: 15px;
+            background: rgba(129, 140, 248, 0.1);
+            color: var(--primary-color);
+            font-family: var(--font-heading);
+            font-weight: 700;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .records-table td {
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.9rem;
+        }
+
+        .records-table tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        /* Prevent number input arrows */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        @media (max-width: 500px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Header Navigation -->
+    <header class="header">
+        <div class="container nav-container">
+            <a href="index.html" class="logo" style="text-decoration: none;">
+                <i class="fa-solid fa-note-sticky"></i>
+                <span>NoteSync</span>
+            </a>
+            <div class="nav-actions">
+                <a href="index.html" class="btn btn-secondary">Home</a>
+
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="contact-section">
+            <div class="contact-card">
+                <div class="contact-header">
+                    <h1>Get in Touch</h1>
+                </div>
+                <form class="contact-form" id="contact-form" novalidate>
+                    <div class="form-row">
+                        <div class="form-group" id="group-first-name">
+                            <label for="first-name">First Name</label>
+                            <input type="text" id="first-name" placeholder="First">
+                            <span class="error-message">First name cannot be empty.</span>
+                        </div>
+                        <div class="form-group" id="group-last-name">
+                            <label for="last-name">Last Name</label>
+                            <input type="text" id="last-name" placeholder="Last">
+                            <span class="error-message">Last name cannot be empty.</span>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group" id="group-age">
+                            <label for="age">Age</label>
+                            <input type="number" id="age" placeholder="25">
+                            <span class="error-message">Age must be between 1 and 99.</span>
+                        </div>
+                        <div class="form-group" id="group-gender">
+                            <label for="gender">Gender</label>
+                            <select id="gender">
+                                <option value="" disabled selected>Select Gender</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                                <option value="other">Other</option>
+                            </select>
+                            <span class="error-message">Please select a gender.</span>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group" id="group-mobile">
+                            <label for="mobile">Mobile Number</label>
+                            <input type="tel" id="mobile" placeholder="10-digit number">
+                            <span class="error-message">Mobile number must be exactly 10 digits.</span>
+                        </div>
+                        <div class="form-group" id="group-email">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" placeholder="john@example.com">
+                            <span class="error-message">Please enter a valid email address.</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="group-address">
+                        <label for="address">Address</label>
+                        <textarea id="address" rows="2" placeholder="Street, City, Zip Code"></textarea>
+                    </div>
+
+                    <div class="form-group" id="group-message">
+                        <label for="message">Description</label>
+                        <textarea id="message" rows="4" placeholder="How can we help?"></textarea>
+                        <span class="error-message">Description cannot be empty.</span>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Submit</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Data Table Section -->
+        <section class="table-section">
+            <div class="contact-header">
+                <h2 style="font-family: var(--font-heading); color: var(--text-main);">Submitted Records</h2>
+                <p style="color: var(--text-muted);">List of all contacts received.</p>
+            </div>
+            <div class="table-container">
+                <table class="records-table">
+                    <thead>
+                        <tr>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Age</th>
+                            <th>Gender</th>
+                            <th>Mobile</th>
+                            <th>Email</th>
+                            <th>Address</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody id="records-body">
+                        <!-- Data rows will appear here -->
+                    </tbody>
+                </table>
+                <div id="no-records" class="no-data" style="display: none;">No records found.</div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Chatbot Widget -->
+    <div class="chatbot-container">
+        <!-- Chat Window -->
+        <div class="chat-window hidden">
+            <div class="chat-header">
+                NoteSync Support
+            </div>
+            <!-- Messages Area -->
+            <div class="chat-body" id="chat-messages">
+                <div class="message bot-message">
+                    Welcome to the Notes Collaboration Platform! How can I help you today?
+                </div>
+            </div>
+            <!-- Input Area -->
+            <form class="chat-footer" id="chat-form">
+                <input type="text" id="chat-input" placeholder="Type a message..." required>
+                <button type="submit" class="chat-send-btn">Send</button>
+            </form>
+        </div>
+        <!-- Toggle Button -->
+        <button class="chatbot-toggle-btn">
+            <i class="fa-solid fa-comments"></i>
+        </button>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        const form = document.getElementById('contact-form');
+        const recordsBody = document.getElementById('records-body');
+        const noRecordsDiv = document.getElementById('no-records');
+
+        const inputs = {
+            firstName: document.getElementById('first-name'),
+            lastName: document.getElementById('last-name'),
+            age: document.getElementById('age'),
+            gender: document.getElementById('gender'),
+            mobile: document.getElementById('mobile'),
+            email: document.getElementById('email'),
+            address: document.getElementById('address'),
+            message: document.getElementById('message')
+        };
+
+        const loadRecords = () => {
+            const records = JSON.parse(localStorage.getItem('contactRecords') || '[]');
+            displayRecords(records);
+        };
+
+        const displayRecords = (records) => {
+            recordsBody.innerHTML = "";
+            if (records.length === 0) {
+                noRecordsDiv.style.display = "block";
+                return;
+            }
+            noRecordsDiv.style.display = "none";
+            
+            records.forEach(record => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${record.firstName}</td>
+                    <td>${record.lastName}</td>
+                    <td>${record.age}</td>
+                    <td>${record.gender}</td>
+                    <td>${record.mobile}</td>
+                    <td>${record.email}</td>
+                    <td>${record.address || '-'}</td>
+                    <td>${record.message}</td>
+                `;
+                recordsBody.appendChild(row);
+            });
+        };
+
+        const saveRecord = (record) => {
+            const records = JSON.parse(localStorage.getItem('contactRecords') || '[]');
+            
+            // Check for existing record with same Email OR Mobile Number
+            const existingIndex = records.findIndex(r => 
+                r.email === record.email || r.mobile === record.mobile
+            );
+
+            if (existingIndex !== -1) {
+                // Update existing record
+                records[existingIndex] = record;
+            } else {
+                // Add new record
+                records.push(record);
+            }
+
+            localStorage.setItem('contactRecords', JSON.stringify(records));
+            displayRecords(records);
+        };
+
+        const validateField = (id, isValid) => {
+            const group = document.getElementById(`group-${id}`);
+            if (group) {
+                if (isValid) {
+                    group.classList.remove('error');
+                } else {
+                    group.classList.add('error');
+                }
+            }
+            return isValid;
+        };
+
+        const validateSpecificField = (id) => {
+            switch(id) {
+                case 'first-name':
+                    return validateField('first-name', inputs.firstName.value.trim() !== "");
+                case 'last-name':
+                    return validateField('last-name', inputs.lastName.value.trim() !== "");
+                case 'age':
+                    const ageVal = parseInt(inputs.age.value);
+                    return validateField('age', !isNaN(ageVal) && ageVal >= 1 && ageVal <= 99 && inputs.age.value.length <= 2);
+                case 'gender':
+                    return validateField('gender', inputs.gender.value !== "");
+                case 'mobile':
+                    return validateField('mobile', /^[0-9]{10}$/.test(inputs.mobile.value));
+                case 'email':
+                    return validateField('email', /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(inputs.email.value));
+                case 'message':
+                    return validateField('message', inputs.message.value.trim() !== "");
+                default:
+                    return true;
+            }
+        };
+
+        const checkValidation = () => {
+            let isAllValid = true;
+            if (!validateSpecificField('first-name')) isAllValid = false;
+            if (!validateSpecificField('last-name')) isAllValid = false;
+            if (!validateSpecificField('age')) isAllValid = false;
+            if (!validateSpecificField('gender')) isAllValid = false;
+            if (!validateSpecificField('mobile')) isAllValid = false;
+            if (!validateSpecificField('email')) isAllValid = false;
+            if (!validateSpecificField('message')) isAllValid = false;
+            return isAllValid;
+        };
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (checkValidation()) {
+                const submitBtn = form.querySelector('button[type="submit"]');
+                const originalText = submitBtn.textContent;
+
+                submitBtn.disabled = true;
+                submitBtn.textContent = "Submitting...";
+
+                try {
+                    const newRecord = {
+                        firstName: inputs.firstName.value.trim(),
+                        lastName: inputs.lastName.value.trim(),
+                        age: inputs.age.value,
+                        gender: inputs.gender.value,
+                        mobile: inputs.mobile.value,
+                        email: inputs.email.value,
+                        address: inputs.address.value.trim(),
+                        message: inputs.message.value.trim()
+                    };
+
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    
+                    saveRecord(newRecord);
+                    alert("Success! Your record has been saved.");
+                    form.reset();
+                } catch (error) {
+                    alert("An error occurred. Please try again.");
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
+                }
+            }
+        });
+
+        loadRecords();
+
+        // Specific field validation on blur/interaction
+        inputs.firstName.addEventListener('blur', () => validateSpecificField('first-name'));
+        inputs.lastName.addEventListener('blur', () => validateSpecificField('last-name'));
+        inputs.age.addEventListener('blur', () => validateSpecificField('age'));
+        inputs.gender.addEventListener('change', () => validateSpecificField('gender'));
+        inputs.gender.addEventListener('blur', () => validateSpecificField('gender'));
+        inputs.mobile.addEventListener('blur', () => validateSpecificField('mobile'));
+        inputs.email.addEventListener('blur', () => validateSpecificField('email'));
+        inputs.message.addEventListener('blur', () => validateSpecificField('message'));
+
+        // Real-time error clearing
+        Object.keys(inputs).forEach(key => {
+            const input = inputs[key];
+            const id = input.id;
+            input.addEventListener('input', () => {
+                const group = input.closest('.form-group');
+                if (group && group.classList.contains('error')) {
+                    validateSpecificField(id);
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

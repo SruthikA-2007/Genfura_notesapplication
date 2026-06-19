@@ -64,6 +64,18 @@ body {
     align-items: center;
 }
 
+.nav-actions {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.nav-actions .btn {
+    min-width: 140px;
+    text-align: center;
+    white-space: nowrap;
+}
+
 .logo {
     font-family: var(--font-heading);
     font-size: 1.5rem;
@@ -111,12 +123,16 @@ body {
     transition: 0.3s;
     font-family: var(--font-heading);
     text-decoration: none;
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid transparent; /* Match secondary border size */
 }
 
 .btn-primary {
     background: var(--primary-color);
     color: var(--white);
+    border-color: var(--primary-color);
 }
 
 .btn-primary:hover {
@@ -132,6 +148,11 @@ body {
 
 .btn-secondary:hover {
     background: rgba(129, 140, 248, 0.1);
+}
+
+.btn-lg {
+    padding: 18px 36px;
+    font-size: 1.1rem;
 }
 
 /* Features Cards */
