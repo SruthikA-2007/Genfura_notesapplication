@@ -298,6 +298,7 @@
                             <th>Email</th>
                             <th>Address</th>
                             <th>Description</th>
+                            <th>Submitted Time</th>
                         </tr>
                     </thead>
                     <tbody id="records-body">
@@ -375,6 +376,7 @@
                     <td>${record.email}</td>
                     <td>${record.address || '-'}</td>
                     <td>${record.message}</td>
+                    <td>${record.submittedAt || '-'}</td>
                 `;
                 recordsBody.appendChild(row);
             });
@@ -465,7 +467,8 @@
                         mobile: inputs.mobile.value,
                         email: inputs.email.value,
                         address: inputs.address.value.trim(),
-                        message: inputs.message.value.trim()
+                        message: inputs.message.value.trim(),
+                        submittedAt: new Date().toLocaleString()
                     };
 
                     await new Promise(resolve => setTimeout(resolve, 1000));
