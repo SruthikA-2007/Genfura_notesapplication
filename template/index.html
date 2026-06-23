@@ -11,7 +11,7 @@
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="../static/css/style.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 
 <body>
@@ -24,7 +24,7 @@
                 <span>NoteSync</span>
             </div>
             <div class="nav-actions">
-                <a href="contact.html" class="btn btn-secondary" id="contact-btn">Contact Us</a>
+                <a href="{{ url_for('contact') }}" class="btn btn-secondary" id="contact-btn">Contact Us</a>
                 <button class="btn btn-secondary" id="login-btn">Login</button>
                 <button class="btn btn-primary" id="signup-btn">Sign Up</button>
             </div>
@@ -128,7 +128,7 @@
     </div>
 
     <!-- Custom Script -->
-    <script src="../static/js/script.js"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 
 </html>
