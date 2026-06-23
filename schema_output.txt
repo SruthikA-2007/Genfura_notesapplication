@@ -1,5 +1,0 @@
-Error: code=23502, message=null value in column "lastName" of relation "Contacts" violates not-null constraint, hint=None
-  -> Required column found: lastName
-Error: code=23502, message=null value in column "Id" of relation "Contacts" violates not-null constraint, hint=None
-  -> Required column found: Id
-Error: code=22P02, message=invalid input syntax for type bigint: "test", hint=None
