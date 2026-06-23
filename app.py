@@ -53,14 +53,14 @@ def create_contact():
         data = request.json
         print(f"POST data received: {data}")
         db_data = {
-            "first_name": data.get('firstName'),
-            "last_name": data.get('lastName'),
-            "age": data.get('age'),
-            "gender": data.get('gender'),
-            "mobile_number": data.get('mobile'),
-            "email": data.get('email'),
-            "address": data.get('address'),
-            "description": data.get('message')
+            "firstName": data.get('firstName'),
+            "lastName": data.get('lastName'),
+            "Age": int(data.get('age')) if data.get('age') else None,
+            "Gender": data.get('gender'),
+            "mobileNumber": data.get('mobile'),
+            "emailAddress": data.get('email'),
+            "Address": data.get('address'),
+            "Description": data.get('message')
         }
         print(f"Inserting into '{TABLE_NAME}': {db_data}")
         response = supabase.table(TABLE_NAME).insert(db_data).execute()
@@ -76,16 +76,16 @@ def update_contact(record_id):
     try:
         data = request.json
         db_data = {
-            "first_name": data.get('firstName'),
-            "last_name": data.get('lastName'),
-            "age": data.get('age'),
-            "gender": data.get('gender'),
-            "mobile_number": data.get('mobile'),
-            "email": data.get('email'),
-            "address": data.get('address'),
-            "description": data.get('message')
+            "firstName": data.get('firstName'),
+            "lastName": data.get('lastName'),
+            "Age": int(data.get('age')) if data.get('age') else None,
+            "Gender": data.get('gender'),
+            "mobileNumber": data.get('mobile'),
+            "emailAddress": data.get('email'),
+            "Address": data.get('address'),
+            "Description": data.get('message')
         }
-        response = supabase.table(TABLE_NAME).update(db_data).eq('id', record_id).execute()
+        response = supabase.table(TABLE_NAME).update(db_data).eq('Id', record_id).execute()
         return jsonify({"status": "success", "data": response.data})
     except Exception as e:
         print(f"PUT ERROR: {repr(e)}")
@@ -95,7 +95,7 @@ def update_contact(record_id):
 def delete_contact(record_id):
     """Delete a record from Supabase."""
     try:
-        response = supabase.table(TABLE_NAME).delete().eq('id', record_id).execute()
+        response = supabase.table(TABLE_NAME).delete().eq('Id', record_id).execute()
         return jsonify({"status": "success", "message": "Record deleted"})
     except Exception as e:
         print(f"DELETE ERROR: {repr(e)}")

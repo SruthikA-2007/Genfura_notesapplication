@@ -105,21 +105,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 const row = document.createElement('tr');
                 // Mapping Supabase column names to the table display
                 row.innerHTML = `
-                    <td>${record.first_name}</td>
-                    <td>${record.last_name}</td>
-                    <td>${record.age}</td>
-                    <td>${record.gender}</td>
-                    <td>${record.mobile_number}</td>
-                    <td>${record.email}</td>
-                    <td>${record.address || '-'}</td>
-                    <td>${record.description}</td>
-                    <td>${new Date(record.created_at || Date.now()).toLocaleString()}</td>
+                    <td>${record.firstName}</td>
+                    <td>${record.lastName}</td>
+                    <td>${record.Age}</td>
+                    <td>${record.Gender}</td>
+                    <td>${record.mobileNumber}</td>
+                    <td>${record.emailAddress}</td>
+                    <td>${record.Address || '-'}</td>
+                    <td>${record.Description}</td>
+                    <td>${new Date(record.submittedTime || Date.now()).toLocaleString()}</td>
                     <td>
                         <div style="display: flex; gap: 10px;">
-                            <button onclick="editRecord(${record.id})" class="btn-icon" title="Edit">
+                            <button onclick="editRecord(${record.Id})" class="btn-icon" title="Edit">
                                 <i class="fa-solid fa-pen-to-square" style="color: var(--primary-color);"></i>
                             </button>
-                            <button onclick="deleteRecord(${record.id})" class="btn-icon" title="Delete">
+                            <button onclick="deleteRecord(${record.Id})" class="btn-icon" title="Delete">
                                 <i class="fa-solid fa-trash" style="color: #ef4444;"></i>
                             </button>
                         </div>
@@ -130,10 +130,10 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         // --- EXPOSE CRUD FUNCTIONS TO WINDOW ---
-        window.deleteRecord = async (id) => {
+        window.deleteRecord = async (Id) => {
             if (!confirm("Are you sure you want to delete this record?")) return;
             try {
-                const response = await fetch(`/api/contact/${id}`, { method: 'DELETE' });
+                const response = await fetch(`/api/contact/${Id}`, { method: 'DELETE' });
                 if (response.ok) {
                     await loadRecords();
                 }
@@ -147,18 +147,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Find local record first (to avoid extra fetch) or fetch from API
                 const response = await fetch('/api/contact');
                 const records = await response.json();
-                const record = records.find(r => r.id === id);
+                const record = records.find(r => r.Id === id);
                 
                 if (record) {
                     editingId = id;
-                    inputs.firstName.value = record.first_name;
-                    inputs.lastName.value = record.last_name;
-                    inputs.age.value = record.age;
-                    inputs.gender.value = record.gender;
-                    inputs.mobile.value = record.mobile_number;
-                    inputs.email.value = record.email;
-                    inputs.address.value = record.address || "";
-                    inputs.message.value = record.description;
+                    inputs.firstName.value = record.firstName;
+                    inputs.lastName.value = record.lastName;
+                    inputs.age.value = record.Age;
+                    inputs.gender.value = record.Gender;
+                    inputs.mobile.value = record.mobileNumber;
+                    inputs.email.value = record.emailAddress;
+                    inputs.address.value = record.Address || "";
+                    inputs.message.value = record.Description;
                     
                     submitBtn.textContent = "Update Record";
                     window.scrollTo({ top: contactForm.offsetTop - 100, behavior: 'smooth' });
@@ -179,6 +179,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     body: JSON.stringify(record),
                 });
                 
+                const result = await response.json();
+                
                 if (response.ok) {
                     alert(editingId ? "Record updated successfully!" : "Record created successfully!");
                     editingId = null;
@@ -186,10 +188,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     contactForm.reset();
                     await loadRecords();
                 } else {
-                    throw new Error("Server error");
+                    // Show the actual server error for debugging
+                    alert("Server Error: " + (result.message || JSON.stringify(result)));
                 }
             } catch (error) {
-                alert("Operation failed. check console.");
+                alert("Network Error: " + error.message);
             }
         };
 
