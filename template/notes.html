@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NoteSync - Shared Notes</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Outfit:wght@700;800&display=swap"
+        rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+    <!-- Header Navigation -->
+    <header class="header">
+        <div class="container nav-container">
+            <a href="{{ url_for('index') }}" class="logo" style="text-decoration: none; color: inherit;">
+                <i class="fa-solid fa-note-sticky"></i>
+                <span>NoteSync</span>
+            </a>
+            <div class="nav-actions">
+                <a href="{{ url_for('notes') }}" class="btn btn-secondary active">Notes</a>
+                <a href="{{ url_for('contact') }}" class="btn btn-secondary">Contact Us</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container page-content">
+        <h1 class="section-title">Shared Community <span>Notes</span></h1>
+        <p style="text-align: center; color: var(--text-muted); margin-bottom: 40px;">Messages from NoteSync users across the globe.</p>
+        
+        <div class="table-container">
+            <table class="records-table">
+                <thead>
+                    <tr>
+                        <th style="width: 10%;">ID</th>
+                        <th style="width: 50%;">Note/Message</th>
+                        <th style="width: 25%;">Shared On</th>
+                        <th style="width: 15%;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="notes-list">
+                    <!-- Notes will be loaded here via static/js/script.js -->
+                    <tr>
+                        <td colspan="4" class="no-data">Loading community notes...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+
+</html>

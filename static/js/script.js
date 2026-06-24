@@ -5,7 +5,53 @@
 
 document.addEventListener('DOMContentLoaded', () => {
 
+    // --- 1. SESSION VALIDATION ON STARTUP ---
+    // This logic checks if the user has visited before and has a valid token
+    const checkSession = async () => {
+        const savedToken = localStorage.getItem('noteSync_token');
+        if (savedToken) {
+            try {
+                const response = await fetch('/api/users/validate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: savedToken })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    const userData = result.data;
+                    
+                    // User found! Skip the registration introduction
+                    isFirstMessage = false;
+                    waitingForFirstName = false;
+                    waitingForLastName = false;
+                    waitingForEmail = false;
+                    
+                    // Restore user state from the backend response
+                    userId = userData.id; // CRITICAL: Store the ID for saving history
+                    userFirstName = userData.first_name;
+                    userLastName = userData.last_name;
+                    userEmail = userData.email;
+
+                    // Update the chat UI with a personalized greeting
+                    const chatMessages = document.getElementById('chat-messages');
+                    chatMessages.innerHTML = `
+                        <div class="message bot-message">
+                            Welcome back, ${userFirstName}! How can I assist you today?
+                        </div>
+                    `;
+                } else {
+                    // Token is invalid/expired, remove it to allow fresh login
+                    localStorage.removeItem('noteSync_token');
+                }
+            } catch (error) {
+                console.error("Session check failed:", error);
+            }
+        }
+    };
+
     // --- 2. CHATBOT TOGGLE LOGIC ---
+    // Handles opening and closing the chatbot window
     const chatbotBtn = document.querySelector('.chatbot-toggle-btn');
     const chatWindow = document.querySelector('.chat-window');
 
@@ -15,17 +61,22 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 3. CHAT MESSAGE LOGIC ---
+    // --- 3. CHATBOT WORKFLOW & MESSAGE LOGIC ---
     const chatForm = document.getElementById('chat-form');
     const chatInput = document.getElementById('chat-input');
     const chatMessages = document.getElementById('chat-messages');
 
+    // State management for the registration funnel
     let isFirstMessage = true;
     let waitingForFirstName = false;
     let waitingForLastName = false;
+    let waitingForEmail = false;
     let userFirstName = "";
     let userLastName = "";
+    let userEmail = "";
+    let userId = null; // Used to associate messages with the correct user in DB
 
+    // Utility to show messages in the UI
     function addMessage(text, sender) {
         const messageDiv = document.createElement('div');
         messageDiv.classList.add('message', `${sender}-message`);
@@ -34,14 +85,46 @@ document.addEventListener('DOMContentLoaded', () => {
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
+    // API Call: Save message to Supabase History table
+    async function saveMessageToHistory(text) {
+        if (!userId) return; // Only save if the user has been identified
+        try {
+            await fetch('/api/history', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userId: userId,
+                    message: text
+                })
+            });
+        } catch (error) {
+            console.error("Error saving history:", error);
+        }
+    }
+
+    // Validation: Ensure email follows a standard pattern
+    const isValidEmail = (email) => {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    };
+
+    // Main event listener for sending messages
     if (chatForm) {
         chatForm.addEventListener('submit', (event) => {
             event.preventDefault();
             const messageText = chatInput.value.trim();
             if (!messageText) return;
+            
+            // Add user message to UI immediately
             addMessage(messageText, 'user');
             chatInput.value = "";
-            setTimeout(() => {
+
+            // Background step: Save message to database history if user is identified
+            if (!isFirstMessage && !waitingForFirstName && !waitingForLastName && !waitingForEmail) {
+                saveMessageToHistory(messageText);
+            }
+            
+            // Bot Response Switchboard (Handles registration OR normal chat)
+            setTimeout(async () => {
                 if (isFirstMessage) {
                     addMessage("Before we continue, please enter your First Name.", 'bot');
                     isFirstMessage = false;
@@ -54,13 +137,62 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else if (waitingForLastName) {
                     userLastName = messageText;
                     waitingForLastName = false;
-                    addMessage(`Nice to meet you, ${userFirstName} ${userLastName}! How can I assist you with your notes today?`, 'bot');
+                    waitingForEmail = true;
+                    addMessage(`Got it. Finally, what is your Email Address?`, 'bot');
+                } else if (waitingForEmail) {
+                    // Validation Check
+                    if (!isValidEmail(messageText)) {
+                        addMessage("That doesn't look like a valid email. Please try again.", 'bot');
+                        return;
+                    }
+                    userEmail = messageText;
+                    
+                    addMessage("Establishing secure session...", 'bot');
+
+                    // Register/Login user via Flask API
+                    try {
+                        const response = await fetch('/api/users', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                firstName: userFirstName,
+                                lastName: userLastName,
+                                email: userEmail
+                            })
+                        });
+
+                        if (response.ok) {
+                            const result = await response.json();
+                            // Only advance state if registration succeeded
+                            waitingForEmail = false; 
+                            
+                            // Store ID and Token locally for current and future visits
+                            userId = result.data.id;
+                            if (result.data.session_token) {
+                                localStorage.setItem('noteSync_token', result.data.session_token);
+                            }
+
+                            addMessage(`Perfect! Nice to meet you, ${userFirstName} ${userLastName}. How can I assist you today?`, 'bot');
+                        } else {
+                            // NEW: Extract error message for debugging
+                            const errorResult = await response.json();
+                            console.error("Registration Error Details:", errorResult);
+                            addMessage(`I had some trouble saving your details. Error: ${errorResult.message || 'Unknown error'}`, 'bot');
+                        }
+                    } catch (error) {
+                        console.error("Network/Registration Error:", error);
+                        addMessage("A technical connection error occurred. Please try again later.", 'bot');
+                    }
                 } else {
-                    addMessage("Your request has been received. This feature will be connected soon.", 'bot');
+                    // Standard message response
+                    addMessage("The message is noted.", 'bot');
                 }
             }, 800);
         });
     }
+
+    // Startup Execution
+    checkSession();
 
     // --- 4. SUPABASE CRUD LOGIC ---
     const contactForm = document.getElementById('contact-form');
@@ -252,5 +384,70 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         loadRecords();
+    }
+
+    // --- 5. NOTES PAGE SHARED HISTORY LOGIC ---
+    const notesList = document.getElementById('notes-list');
+
+    if (notesList) {
+        const loadAllNotes = async () => {
+            try {
+                // Ensure we have the user's session identified first for ownership checks
+                if (!userId) await checkSession();
+
+                const response = await fetch('/api/history_all');
+                const notes = await response.json();
+                
+                notesList.innerHTML = "";
+                
+                if (!notes || notes.length === 0) {
+                    notesList.innerHTML = '<tr><td colspan="4" class="no-data">No shared notes found.</td></tr>';
+                    return;
+                }
+
+                notes.forEach(note => {
+                    const row = document.createElement('tr');
+                    
+                    // Logic: Only show delete button if current user IS the owner of this note
+                    const isOwner = userId && String(note.user_id) === String(userId);
+                    const deleteBtn = isOwner ? `
+                        <button class="btn-icon" onclick="deleteNote(${note.id})" title="Delete My Note">
+                            <i class="fa-solid fa-trash" style="color: #ef4444;"></i>
+                        </button>
+                    ` : '<span style="color: var(--text-muted); font-size: 0.8rem;">View Only</span>';
+
+                    row.innerHTML = `
+                        <td>#${note.id}</td>
+                        <td style="font-weight: 500;">${note.message}</td>
+                        <td>${new Date(note.created_at).toLocaleString()}</td>
+                        <td style="text-align: center;">${deleteBtn}</td>
+                    `;
+                    notesList.appendChild(row);
+                });
+            } catch (error) {
+                console.error("Error loading notes:", error);
+                notesList.innerHTML = '<tr><td colspan="4" class="no-data">Error connecting to server.</td></tr>';
+            }
+        };
+
+        window.deleteNote = async (id) => {
+            if (!confirm("Are you sure you want to delete this shared note?")) return;
+            
+            try {
+                const response = await fetch(`/api/history/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    loadAllNotes();
+                } else {
+                    alert("Failed to delete note.");
+                }
+            } catch (error) {
+                console.error("Delete error:", error);
+            }
+        };
+
+        loadAllNotes();
     }
 });
