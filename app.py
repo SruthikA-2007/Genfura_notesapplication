@@ -148,6 +148,20 @@ def delete_history(note_id):
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
+@app.route('/api/history/<int:note_id>', methods=['PUT'])
+def update_history(note_id):
+    """Update a specific history record's message."""
+    try:
+        data = request.json
+        new_message = data.get('message')
+        if not new_message:
+            return jsonify({"status": "error", "message": "Message is required"}), 400
+        
+        response = supabase.table('History').update({"message": new_message}).eq('id', note_id).execute()
+        return jsonify({"status": "success", "message": "Note updated", "data": response.data})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
 @app.route('/collection')
 def collection():
     return render_template('collection.html')

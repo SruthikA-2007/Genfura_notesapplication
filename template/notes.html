@@ -35,6 +35,9 @@
                     <input type="text" id="top-search" placeholder="Quick search...">
                 </div>
                 <div class="dash-user-controls">
+                    <a href="{{ url_for('collection') }}" class="nav-text-link" style="color: var(--text-muted); text-decoration: none; font-weight: 600; margin-right: 15px; font-size: 0.9rem; transition: color 0.2s;">
+                        Collections
+                    </a>
                     <button class="icon-btn dark" id="notifications-btn" title="Notifications">
                         <i class="fa-solid fa-bell"></i>
                         <span class="badge" id="notif-badge" style="display: none;">0</span>
