@@ -50,20 +50,52 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (greeting) greeting.innerHTML = `Welcome, <span style="color:var(--primary); font-weight:700;">${userFirstName} ${userLastName}</span>! Feel free to write your notes below:`;
                     }
 
-                    // Update the chat UI with a personalized greeting
+                    // Update the chat UI with a one-time welcome message
                     const chatMessages = document.getElementById('chat-messages');
-                    chatMessages.innerHTML = `
-                        <div class="message bot-message">
-                            Welcome back, ${userFirstName}! How can I assist you today?
-                        </div>
-                    `;
+                    const hasBeenWelcomed = localStorage.getItem('noteSync_welcomed');
+                    
+                    if (!hasBeenWelcomed) {
+                        chatMessages.innerHTML = `
+                            <div class="message bot-message">
+                                Welcome to Notes, ${userFirstName}!
+                            </div>
+                        `;
+                        localStorage.setItem('noteSync_welcomed', 'true');
+                    } else {
+                        // Clear existing manual messages, polling will fill it
+                        chatMessages.innerHTML = "";
+                    }
+
+                    // Start polling for shared chat messages
+                    startChatPolling();
                 } else {
-                    // Token is invalid/expired, remove it to allow fresh login
+                    // Token is invalid/expired, show generic welcome
+                    showGenericWelcome();
                     localStorage.removeItem('noteSync_token');
                 }
             } catch (error) {
                 console.error("Session check failed:", error);
+                showGenericWelcome();
             }
+        } else {
+            // No token at all, show generic welcome
+            showGenericWelcome();
+        }
+    };
+
+    const showGenericWelcome = () => {
+        const chatMessages = document.getElementById('chat-messages');
+        if (chatMessages && chatMessages.children.length === 0) {
+            chatMessages.innerHTML = `
+                <div class="message bot-message">
+                    Welcome to Notes!
+                </div>
+            `;
+        }
+        // Disable chat input for guests
+        const chatInput = document.getElementById('chat-input');
+        if (chatInput) {
+            chatInput.placeholder = "Unlock workspace to chat...";
         }
     };
 
@@ -162,25 +194,96 @@ document.addEventListener('DOMContentLoaded', () => {
     let userEmail = "";
     let userId = null;
 
-    function addMessage(text, sender) {
+    function addMessage(text, sender, name = "") {
         const messageDiv = document.createElement('div');
         messageDiv.classList.add('message', `${sender}-message`);
-        messageDiv.textContent = text;
+        
+        if (name && sender !== 'bot' && sender !== 'system') {
+            const nameSpan = document.createElement('span');
+            nameSpan.style.display = 'block';
+            nameSpan.style.fontSize = '0.7rem';
+            nameSpan.style.marginBottom = '2px';
+            nameSpan.style.opacity = '0.7';
+            nameSpan.textContent = name;
+            messageDiv.appendChild(nameSpan);
+        }
+
+        const textSpan = document.createElement('span');
+        textSpan.textContent = text;
+        messageDiv.appendChild(textSpan);
+        
         chatMessages.appendChild(messageDiv);
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
-    async function saveMessageToHistory(text) {
+    async function saveMessageToChat(text) {
         if (!userId) return;
         try {
-            await fetch('/api/history', {
+            await fetch('/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ userId, message: text })
             });
+            loadChatMessages(); // Refresh immediately after sending
         } catch (error) {
-            console.error("Error saving history:", error);
+            console.error("Error saving chat:", error);
         }
+    }
+
+    async function loadChatMessages() {
+        try {
+            const response = await fetch('/api/chat');
+            const messages = await response.json();
+            
+            const chatMessages = document.getElementById('chat-messages');
+            
+            // Collect existing system messages (ephemeral)
+            const systemMessages = Array.from(chatMessages.querySelectorAll('.bot-message'))
+                .filter(el => !el.textContent.includes('Welcome to Notes')) // Don't duplicate welcome
+                .map(el => el.outerHTML);
+
+            // Re-build content
+            const welcomeMsg = localStorage.getItem('noteSync_token') ? 
+                `<div class="message bot-message">Welcome to Notes, ${userFirstName}!</div>` : "";
+            
+            let newContent = "";
+            const hasBeenWelcomed = localStorage.getItem('noteSync_welcomed');
+            if (hasBeenWelcomed) {
+                newContent = welcomeMsg;
+            }
+
+            messages.forEach(msg => {
+                const isMe = (userId && String(msg.user_id) === String(userId));
+                const sender = isMe ? 'user' : 'other';
+                const userName = msg.Users ? `${msg.Users.first_name} ${msg.Users.last_name}` : `User #${msg.user_id}`;
+                
+                newContent += `
+                    <div class="message ${sender}-message">
+                        <span style="display:block; font-size:0.7rem; margin-bottom:2px; opacity:0.7; font-weight: 500;">
+                            ${isMe ? 'You' : userName}
+                        </span>
+                        <span>${msg.message}</span>
+                    </div>
+                `;
+            });
+
+            // Add back ephemeral system messages
+            systemMessages.forEach(sm => {
+                if (!newContent.includes(sm)) newContent += sm;
+            });
+
+            if (chatMessages.innerHTML !== newContent) {
+                chatMessages.innerHTML = newContent;
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+        } catch (error) {
+            console.error("Error loading chat:", error);
+        }
+    }
+
+    function startChatPolling() {
+        loadChatMessages();
+        setInterval(loadChatMessages, 5000); // Poll every 5 seconds
     }
 
     if (chatForm) {
@@ -189,17 +292,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const messageText = chatInput.value.trim();
             if (!messageText) return;
 
-            addMessage(messageText, 'user');
+            if (!userId) {
+                alert("Please unlock your workspace to send messages.");
+                return;
+            }
+
+            saveMessageToChat(messageText);
             chatInput.value = "";
-
-            if (userId) saveMessageToHistory(messageText);
-
-            setTimeout(() => {
-                const response = userId
-                    ? `I've noted that for you, ${userFirstName}.`
-                    : "I've noted your message. Please unlock your workspace to save history.";
-                addMessage(response, 'bot');
-            }, 800);
+            // AI Responses Disabled
         });
     }
 
@@ -419,6 +519,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (response.ok) {
                     saveHeroNoteBtn.innerHTML = '<i class="fa-solid fa-check"></i> Saved Successfully!';
                     saveHeroNoteBtn.style.background = '#10b981';
+                    
+                    // Show system message in chatbot
+                    addMessage(`Your note '${message}' has been saved, ${userFirstName}.`, 'bot');
+                    
                     heroNoteInput.value = "";
                     
                     setTimeout(() => {
@@ -431,6 +535,148 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error("Hero save error:", error);
                 saveHeroNoteBtn.disabled = false;
                 saveHeroNoteBtn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> Save Notes';
+            }
+        });
+    }
+
+    // --- 6. COLLECTION PAGE LOGIC ---
+    const folderGrid = document.getElementById('folder-grid');
+    const viewFolders = document.getElementById('view-folders');
+    const viewNotes = document.getElementById('view-notes');
+    const backBtn = document.getElementById('back-btn');
+    const notesGridInner = document.getElementById('notes-grid-inner');
+    const breadcrumbName = document.getElementById('breadcrumb-name');
+
+    if (folderGrid) {
+        let allCollections = [];
+
+        const loadCollections = async () => {
+            try {
+                if (!userId) await checkSession();
+                const response = await fetch('/api/notes_grouped');
+                allCollections = await response.json();
+                renderFolders(allCollections);
+            } catch (error) {
+                console.error("Collection load error:", error);
+                folderGrid.innerHTML = `<p style="padding:20px; opacity:0.6;">Error loading collections.</p>`;
+            }
+        };
+
+        const renderFolders = (collections) => {
+            folderGrid.innerHTML = "";
+            if (collections.length === 0) {
+                folderGrid.innerHTML = `<p style="padding:20px; opacity:0.6;">No user collections found.</p>`;
+                return;
+            }
+
+            collections.forEach(user => {
+                const folder = document.createElement('div');
+                folder.className = 'col-folder-card';
+                folder.innerHTML = `
+                    <div class="col-folder-icon"><i class="fa-solid fa-folder"></i></div>
+                    <div class="col-folder-info">
+                        <h3 class="col-folder-name">${user.name}</h3>
+                        <p class="col-folder-count">${user.notes.length} saved notes</p>
+                    </div>
+                `;
+                folder.addEventListener('click', () => showUserNotes(user));
+                folderGrid.appendChild(folder);
+            });
+        };
+
+        const showUserNotes = (user) => {
+            viewFolders.style.display = 'none';
+            viewNotes.style.display = 'block';
+            breadcrumbName.textContent = user.name;
+
+            notesGridInner.innerHTML = "";
+            user.notes.forEach(note => {
+                const isOwner = userId && String(user.user_id) === String(userId);
+                const card = document.createElement('div');
+                card.className = 'col-note-card';
+                card.innerHTML = `
+                    <div class="col-note-text">${note.message}</div>
+                    <div class="col-note-meta">
+                        <div class="col-note-time">
+                            <i class="fa-regular fa-clock"></i>
+                            ${new Date(note.created_at).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}
+                        </div>
+                        <div class="col-note-actions">
+                            ${isOwner ? `
+                                <button class="footer-btn edit" onclick="openEditModal(${note.id}, '${note.message.replace(/'/g, "\\'")}')" title="Edit">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                                <button class="footer-btn delete" onclick="deleteNote(${note.id})" title="Delete">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+                notesGridInner.appendChild(card);
+            });
+        };
+
+        if (backBtn) {
+            backBtn.addEventListener('click', () => {
+                viewFolders.style.display = 'block';
+                viewNotes.style.display = 'none';
+            });
+        }
+
+        // Search logic
+        const folderSearch = document.getElementById('folder-search');
+        if (folderSearch) {
+            folderSearch.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase();
+                const filtered = allCollections.filter(u => u.name.toLowerCase().includes(query));
+                renderFolders(filtered);
+            });
+        }
+
+        loadCollections();
+    }
+
+    // Modal Logic for Editing
+    const editModal = document.getElementById('edit-modal-overlay');
+    const editArea = document.getElementById('edit-note-text');
+    const cancelEditBtn = document.getElementById('edit-cancel-btn');
+    const saveEditBtn = document.getElementById('edit-save-btn');
+    let currentEditId = null;
+
+    window.openEditModal = (id, text) => {
+        currentEditId = id;
+        editArea.value = text;
+        editModal.classList.add('active');
+    };
+
+    if (cancelEditBtn) {
+        cancelEditBtn.addEventListener('click', () => {
+            editModal.classList.remove('active');
+            currentEditId = null;
+        });
+    }
+
+    if (saveEditBtn) {
+        saveEditBtn.addEventListener('click', async () => {
+            const newText = editArea.value.trim();
+            if (!newText || !currentEditId) return;
+
+            try {
+                const response = await fetch(`/api/history/${currentEditId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: newText })
+                });
+
+                if (response.ok) {
+                    editModal.classList.remove('active');
+                    location.reload(); // Simple refresh to show changes
+                } else {
+                    alert("Update failed.");
+                }
+            } catch (error) {
+                console.error("Edit error:", error);
             }
         });
     }

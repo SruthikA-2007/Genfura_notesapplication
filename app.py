@@ -106,13 +106,12 @@ def validate_token():
 
 @app.route('/api/history', methods=['POST'])
 def save_history():
-    """Save a chat message to Supabase history linked to the user_id."""
+    """Save a note to Supabase history."""
     try:
         data = request.json
         user_id = data.get('userId')
         message = data.get('message')
 
-        # Basic server-side validation
         if not user_id or not message:
             return jsonify({"status": "error", "message": "User ID and message are required"}), 400
 
@@ -121,21 +120,77 @@ def save_history():
             "message": message
         }
 
-        # Insert record into History table
         response = supabase.table('History').insert(db_data).execute()
-        
         return jsonify({"status": "success", "data": response.data}), 201
     except Exception as e:
         print(f"HISTORY SAVING ERROR: {repr(e)}")
         return jsonify({"status": "error", "message": str(e)}), 500
 
+@app.route('/api/chat', methods=['POST'])
+def save_chat():
+    """Save a community chat message with a prefix."""
+    try:
+        data = request.json
+        user_id = data.get('userId')
+        message = data.get('message')
+
+        if not user_id or not message:
+            return jsonify({"status": "error", "message": "User ID and message are required"}), 400
+
+        # Prefix to distinguish from notes
+        db_data = {
+            "user_id": user_id,
+            "message": f"[CHAT] {message}"
+        }
+
+        response = supabase.table('History').insert(db_data).execute()
+        return jsonify({"status": "success", "data": response.data}), 201
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+from datetime import datetime, timedelta, timezone
+
+@app.route('/api/chat', methods=['GET'])
+def get_chat():
+    """Fetch chat messages from the last 24 hours."""
+    try:
+        # Cleanup older messages (Older than 24 hours) - fetch and delete
+        yesterday = (datetime.now(timezone.utc) - timedelta(days=1)).isoformat()
+        try:
+            # Fetch IDs of old chat messages
+            old_res = supabase.table('History').select('id, message').lt('created_at', yesterday).execute()
+            if old_res.data:
+                old_ids = [r['id'] for r in old_res.data if str(r.get('message', '')).startswith('[CHAT] ')]
+                if old_ids:
+                    # Delete them one by one or in batches (Supabase filter by in)
+                    supabase.table('History').delete().in_('id', old_ids).execute()
+        except Exception as cleanup_err:
+            print(f"Cleanup error: {cleanup_err}")
+
+        # Fetch latest history records and filter in python for prefix [CHAT]
+        response = supabase.table('History').select("*, Users(first_name, last_name)").order('created_at', desc=False).execute()
+        
+        chat_messages = []
+        if response.data:
+            for m in response.data:
+                msg_text = str(m.get('message', ''))
+                if msg_text.startswith('[CHAT] '):
+                    # Strip prefix for the frontend
+                    m['message'] = msg_text.replace('[CHAT] ', '', 1)
+                    chat_messages.append(m)
+            
+        return jsonify(chat_messages)
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
 @app.route('/api/history_all', methods=['GET'])
 def get_all_history():
-    """Fetch all history records for the community notes page with user names."""
+    """Fetch all shared notes (excluding chat messages)."""
     try:
-        # Using Supabase join to get user details
         response = supabase.table('History').select("*, Users(first_name, last_name)").order('created_at', desc=True).execute()
-        return jsonify(response.data)
+        # Filter out chat messages
+        notes = [m for m in response.data if not str(m.get('message', '')).startswith('[CHAT] ')]
+        return jsonify(notes)
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
@@ -168,10 +223,11 @@ def collection():
 
 @app.route('/api/notes_grouped', methods=['GET'])
 def get_notes_grouped():
-    """Fetch all notes grouped by user, sorted alphabetically by name."""
+    """Fetch all notes grouped by user, filtered to only show saved notes."""
     try:
         response = supabase.table('History').select("*, Users(id, first_name, last_name, email)").order('created_at', desc=True).execute()
-        notes = response.data
+        # Filter out chat messages
+        notes = [m for m in response.data if not str(m.get('message', '')).startswith('[CHAT] ')]
 
         # Group notes by user_id
         grouped = {}
