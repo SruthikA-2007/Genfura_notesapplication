@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NoteSync - Simple Notes for Teams</title>
     <!-- Google Fonts: Outfit & Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Outfit:wght@700;800&display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800&display=swap"
         rel="stylesheet">
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -23,11 +23,14 @@
                 <i class="fa-solid fa-note-sticky"></i>
                 <span>NoteSync</span>
             </div>
+
+            <nav class="nav-links">
+                <a href="#features" class="nav-link">Features</a>
+                <a href="{{ url_for('notes') }}" class="nav-link">My Notes</a>
+            </nav>
+
             <div class="nav-actions">
-                <a href="{{ url_for('notes') }}" class="btn btn-secondary">Notes</a>
-                <a href="{{ url_for('contact') }}" class="btn btn-secondary" id="contact-btn">Contact Us</a>
-                <button class="btn btn-secondary" id="login-btn">Login</button>
-                <button class="btn btn-primary" id="signup-btn">Sign Up</button>
+                <a href="#unlock" class="btn btn-primary">Get Started</a>
             </div>
         </div>
     </header>
@@ -35,70 +38,123 @@
     <!-- Main Content -->
     <main>
         <!-- Hero Section -->
-        <section class="hero-section">
-            <div class="container">
-                <h1 class="hero-title">Collaborate & Create <span>Together</span></h1>
-                <p class="hero-subtitle">The easiest way for teams to share notes and stay in sync throughout the day.</p>
+        <section class="hero-section" id="hero">
+            <div class="container hero-grid">
+                <div class="hero-content">
+                    <div class="hero-badge">
+                        <i class="fa-solid fa-bolt"></i>
+                        Introducing NoteSync 2.0
+                    </div>
+                    <h1 class="hero-title">Collaborate & Create <span>Together</span></h1>
+                    <p class="hero-subtitle">The easiest way for teams to share notes, organize thoughts, and stay in
+                        sync in real-time. Boost your team's productivity instantly.</p>
 
+                    <div class="hero-btns">
+                        <a href="#unlock" class="btn btn-primary">Get Started Free <i
+                                class="fa-solid fa-arrow-right"></i></a>
+                    </div>
+                </div>
+
+                <!-- Unlock Workspace Card -->
+                <div class="hero-card-container" id="unlock">
+                    <!-- Unlock Workspace Card -->
+                    <div class="unlock-workspace-card" id="registration-card">
+                        <div class="card-icon">
+                            <i class="fa-solid fa-lock" id="workspace-lock-icon"></i>
+                        </div>
+                        <h2 class="card-title">Unlock Workspace</h2>
+                        <p class="card-subtitle">Enter your details to access your shared notes and start collaborating.
+                        </p>
+
+                        <form class="unlock-form" id="hero-registration-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="reg-first-name">First Name</label>
+                                    <input type="text" id="reg-first-name" placeholder="Sarah" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="reg-last-name">Last Name</label>
+                                    <input type="text" id="reg-last-name" placeholder="Connor" required>
+                                </div>
+                            </div>
+                            <div class="form-group form-full">
+                                <label for="reg-email">Business Email</label>
+                                <input type="email" id="reg-email" placeholder="sarah@sync.com" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-form-submit" id="reg-submit-btn">
+                                Proceed to Notes <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Notes Entry Card (Shown after unlock) -->
+                    <div class="unlock-workspace-card" id="notes-entry-card" style="display: none;">
+                        <h2 class="card-title">Create Notes</h2>
+                        <div class="card-divider"></div>
+                        <p class="card-subtitle" id="notes-greeting">Welcome! Feel free to write your notes below:</p>
+
+                        <div class="form-group form-full">
+                            <textarea id="hero-note-input" class="modern-textarea"
+                                placeholder="Start typing your notes here..." rows="6"></textarea>
+                        </div>
+                        <button class="btn btn-primary btn-form-submit" id="save-hero-note-btn">
+                            <i class="fa-solid fa-cloud-arrow-up"></i> Save Notes
+                        </button>
+                    </div>
+                </div>
             </div>
         </section>
 
         <!-- Features Section -->
-        <section class="features-section">
+        <section class="features-section" id="features">
             <div class="container">
                 <div class="section-header">
-                    <h2 class="section-title">Key Features</h2>
-                    <p>Everything you need to stay productive.</p>
+                    <span class="section-tag">Powerful Features</span>
+                    <h2 class="section-title">Everything you need to <br>stay productive</h2>
+                    <p>Stop wasting time with disconnected tools. Use NoteSync.</p>
                 </div>
+
                 <div class="features-grid">
+                    <!-- Feature 1 -->
                     <div class="feature-card">
                         <div class="feature-icon-wrapper">
-                            <i class="fa-solid fa-bolt"></i>
+                            <i class="fa-solid fa-feather"></i>
                         </div>
-                        <h3 class="feature-title">Ultra Fast</h3>
-                        <p class="feature-desc">See your teammates' updates instantly as they happen.</p>
+                        <h3 class="feature-title">Easy to Use</h3>
+                        <p class="feature-desc">Create and organize notes in just a few clicks with our intuitive
+                            interface.</p>
                     </div>
+
+                    <!-- Feature 2 -->
+                    <div class="feature-card">
+                        <div class="feature-icon-wrapper">
+                            <i class="fa-solid fa-cloud"></i>
+                        </div>
+                        <h3 class="feature-title">Access Anywhere</h3>
+                        <p class="feature-desc">Your notes sync across all your devices, so you're always up to date.
+                        </p>
+                    </div>
+
+                    <!-- Feature 3 -->
                     <div class="feature-card">
                         <div class="feature-icon-wrapper">
                             <i class="fa-solid fa-shield-halved"></i>
                         </div>
-                        <h3 class="feature-title">Secure</h3>
-                        <p class="feature-desc">Your notes are private and encrypted for your safety.</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon-wrapper">
-                            <i class="fa-solid fa-star"></i>
-                        </div>
-                        <h3 class="feature-title">AI Powered</h3>
-                        <p class="feature-desc">Smart suggestions to help you organize your thoughts better.</p>
+                        <h3 class="feature-title">Secure & Private</h3>
+                        <p class="feature-desc">Your notes are safe with top-notch security and end-to-end encryption.
+                        </p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- How it Works -->
-        <section class="how-it-works">
-            <div class="container">
-                <div class="section-header">
-                    <h2 class="section-title">How It Works</h2>
-                </div>
-                <div class="steps-grid">
-                    <div class="step-item">
-                        <div class="step-num">1</div>
-                        <h3 class="step-title">Write</h3>
-                        <p class="step-desc">Create your first collaborative note.</p>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-num">2</div>
-                        <h3 class="step-title">Share</h3>
-                        <p class="step-desc">Invite your team with a simple link.</p>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-num">3</div>
-                        <h3 class="step-title">Sync</h3>
-                        <p class="step-desc">All edits are synced automatically.</p>
-                    </div>
-                </div>
+        <!-- Ready CTA Section -->
+        <section class="ready-section">
+            <div class="container ready-card">
+                <h2 class="ready-title">Ready to organize your thoughts?</h2>
+                <p class="ready-subtitle">Join thousands of people who trust NoteSync to keep their ideas and tasks in
+                    place.</p>
+                <a href="#unlock" class="btn btn-primary">Get Started Free <i class="fa-solid fa-arrow-right"></i></a>
             </div>
         </section>
     </main>
@@ -113,14 +169,18 @@
             <!-- Messages Area -->
             <div class="chat-body" id="chat-messages">
                 <div class="message bot-message">
-                    Welcome to the Notes Collaboration Platform! How can I help you today?
+                    Welcome to NoteSync! How can I help you today?
                 </div>
             </div>
             <!-- Input Area -->
-            <form class="chat-footer" id="chat-form">
-                <input type="text" id="chat-input" placeholder="Type a message..." required>
-                <button type="submit" class="chat-send-btn">Send</button>
-            </form>
+            <div class="chat-footer">
+                <form id="chat-form">
+                    <input type="text" id="chat-input" placeholder="Ask a question..." required>
+                    <button type="submit" class="chat-send-btn">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </form>
+            </div>
         </div>
         <!-- Toggle Button -->
         <button class="chatbot-toggle-btn">

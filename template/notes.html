@@ -4,56 +4,120 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NoteSync - Shared Notes</title>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Outfit:wght@700;800&display=swap"
+    <title>NoteSync - All Notes</title>
+    <!-- Google Fonts: Inter & Outfit -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@600;700;800&display=swap"
         rel="stylesheet">
-    <!-- FontAwesome -->
+    <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 
-<body>
-    <!-- Header Navigation -->
-    <header class="header">
-        <div class="container nav-container">
-            <a href="{{ url_for('index') }}" class="logo" style="text-decoration: none; color: inherit;">
-                <i class="fa-solid fa-note-sticky"></i>
-                <span>NoteSync</span>
-            </a>
-            <div class="nav-actions">
-                <a href="{{ url_for('notes') }}" class="btn btn-secondary active">Notes</a>
-                <a href="{{ url_for('contact') }}" class="btn btn-secondary">Contact Us</a>
+<body class="dashboard-body dark">
+
+    <!-- Top Dashboard Nav -->
+    <nav class="dashboard-nav dark">
+        <div class="container dash-nav-container">
+            <div class="dash-identity">
+                <a href="{{ url_for('index') }}" class="dash-logo" title="Back to Home">
+                    <i class="fa-solid fa-note-sticky"></i>
+                </a>
+                <div class="dash-welcome">
+                    <h1>All Notes</h1>
+                    <p>Browse and manage shared community insights</p>
+                </div>
+            </div>
+            
+            <div class="dash-actions">
+                <div class="search-box-top">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="top-search" placeholder="Quick search...">
+                </div>
+                <div class="dash-user-controls">
+                    <button class="icon-btn dark" id="notifications-btn" title="Notifications">
+                        <i class="fa-solid fa-bell"></i>
+                        <span class="badge" id="notif-badge" style="display: none;">0</span>
+                    </button>
+                </div>
             </div>
         </div>
-    </header>
+    </nav>
 
-    <main class="container page-content">
-        <h1 class="section-title">Shared Community <span>Notes</span></h1>
-        <p style="text-align: center; color: var(--text-muted); margin-bottom: 40px;">Messages from NoteSync users across the globe.</p>
+    <main class="dashboard-main container">
         
-        <div class="table-container">
-            <table class="records-table">
-                <thead>
-                    <tr>
-                        <th style="width: 10%;">ID</th>
-                        <th style="width: 50%;">Note/Message</th>
-                        <th style="width: 25%;">Shared On</th>
-                        <th style="width: 15%;">Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="notes-list">
-                    <!-- Notes will be loaded here via static/js/script.js -->
-                    <tr>
-                        <td colspan="4" class="no-data">Loading community notes...</td>
-                    </tr>
-                </tbody>
-            </table>
+        <!-- Stats Section (Simplified) -->
+        <section class="stats-grid">
+            <div class="stat-card dark purple">
+                <div class="stat-icon"><i class="fa-solid fa-note-sticky"></i></div>
+                <div class="stat-info">
+                    <span class="stat-label">Total Notes</span>
+                    <h3 class="stat-value" id="total-notes-count">0</h3>
+                </div>
+            </div>
+            <div class="stat-card dark blue">
+                <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
+                <div class="stat-info">
+                    <span class="stat-label">Community Users</span>
+                    <h3 class="stat-value" id="total-users-count">0</h3>
+                </div>
+            </div>
+            <div class="stat-card dark green">
+                <div class="stat-icon"><i class="fa-solid fa-calendar-check"></i></div>
+                <div class="stat-info">
+                    <span class="stat-label">Shared Today</span>
+                    <h3 class="stat-value" id="today-notes-count">0</h3>
+                </div>
+            </div>
+        </section>
+
+        <!-- Filter Bar (Essential Only) -->
+        <section class="filter-bar dark">
+            <div class="filter-group main-search">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="grid-search" placeholder="Search notes by content...">
+            </div>
+            
+            <div class="filter-group dropdown sort">
+                <i class="fa-solid fa-sort"></i>
+                <select id="sort-order">
+                    <option value="latest">Latest First</option>
+                    <option value="oldest">Oldest First</option>
+                </select>
+            </div>
+
+            <div class="view-controls dark">
+                <button class="view-btn active" id="grid-view-btn" title="Grid View">
+                    <i class="fa-solid fa-table-cells-large"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- Notes Grid -->
+        <div id="notes-grid" class="notes-grid">
+            <div class="loading-placeholder">
+                <i class="fa-solid fa-circle-notch fa-spin"></i>
+                <p>Loading community workspace...</p>
+            </div>
         </div>
+
+        <!-- Pagination (Simple) -->
+        <footer class="pagination-footer dark">
+            <div class="pagination-info">
+                Showing <span id="showing-count">0</span> notes
+            </div>
+            <div class="pagination-controls">
+                <button class="page-nav dark" title="Previous"><i class="fa-solid fa-arrow-left"></i></button>
+                <div class="page-numbers">
+                    <button class="page-num active">1</button>
+                </div>
+                <button class="page-nav dark" title="Next"><i class="fa-solid fa-arrow-right"></i></button>
+            </div>
+        </footer>
+
     </main>
 
-    <!-- Custom JS -->
+    <!-- Custom Script -->
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 

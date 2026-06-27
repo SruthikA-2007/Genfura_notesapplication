@@ -16,94 +16,15 @@ SUPABASE_ANON_KEY = os.getenv('SUPABASE_ANON_KEY')
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_ANON_KEY)
 
 # --- IMPORTANT: Set your exact Supabase table name here ---
-TABLE_NAME = 'Contacts'
-
 @app.route('/')
 def index():
     return render_template('index.html')
-
-@app.route('/index.html')
-def index_alias():
-    return render_template('index.html')
-
-@app.route('/contact')
-def contact():
-    return render_template('contact.html')
-
-@app.route('/contact.html')
-def contact_alias():
-    return render_template('contact.html')
 
 @app.route('/notes')
 def notes():
     return render_template('notes.html')
 
-# --- CRUD API ENDPOINTS ---
-
-@app.route('/api/contact', methods=['GET'])
-def get_contacts():
-    """Fetch all records from Supabase."""
-    try:
-        response = supabase.table(TABLE_NAME).select("*").execute()
-        return jsonify(response.data)
-    except Exception as e:
-        print(f"GET ERROR: {repr(e)}")
-        return jsonify({"status": "error", "message": str(e)}), 500
-
-@app.route('/api/contact', methods=['POST'])
-def create_contact():
-    """Create a new record in Supabase."""
-    try:
-        data = request.json
-        print(f"POST data received: {data}")
-        db_data = {
-            "firstName": data.get('firstName'),
-            "lastName": data.get('lastName'),
-            "Age": int(data.get('age')) if data.get('age') else None,
-            "Gender": data.get('gender'),
-            "mobileNumber": data.get('mobile'),
-            "emailAddress": data.get('email'),
-            "Address": data.get('address'),
-            "Description": data.get('message')
-        }
-        print(f"Inserting into '{TABLE_NAME}': {db_data}")
-        response = supabase.table(TABLE_NAME).insert(db_data).execute()
-        print(f"INSERT response: {response.data}")
-        return jsonify({"status": "success", "data": response.data}), 201
-    except Exception as e:
-        print(f"POST ERROR: {repr(e)}")
-        return jsonify({"status": "error", "message": str(e)}), 500
-
-@app.route('/api/contact/<int:record_id>', methods=['PUT'])
-def update_contact(record_id):
-    """Update an existing record in Supabase."""
-    try:
-        data = request.json
-        db_data = {
-            "firstName": data.get('firstName'),
-            "lastName": data.get('lastName'),
-            "Age": int(data.get('age')) if data.get('age') else None,
-            "Gender": data.get('gender'),
-            "mobileNumber": data.get('mobile'),
-            "emailAddress": data.get('email'),
-            "Address": data.get('address'),
-            "Description": data.get('message')
-        }
-        response = supabase.table(TABLE_NAME).update(db_data).eq('Id', record_id).execute()
-        return jsonify({"status": "success", "data": response.data})
-    except Exception as e:
-        print(f"PUT ERROR: {repr(e)}")
-        return jsonify({"status": "error", "message": str(e)}), 500
-
-@app.route('/api/contact/<int:record_id>', methods=['DELETE'])
-def delete_contact(record_id):
-    """Delete a record from Supabase."""
-    try:
-        response = supabase.table(TABLE_NAME).delete().eq('Id', record_id).execute()
-        return jsonify({"status": "success", "message": "Record deleted"})
-    except Exception as e:
-        print(f"DELETE ERROR: {repr(e)}")
-        return jsonify({"status": "error", "message": str(e)}), 500
+# --- REGISTER/LOGIN USER ---
 
 import uuid
 
@@ -210,9 +131,10 @@ def save_history():
 
 @app.route('/api/history_all', methods=['GET'])
 def get_all_history():
-    """Fetch all history records for the community notes page."""
+    """Fetch all history records for the community notes page with user names."""
     try:
-        response = supabase.table('History').select("*").order('created_at', desc=True).execute()
+        # Using Supabase join to get user details
+        response = supabase.table('History').select("*, Users(first_name, last_name)").order('created_at', desc=True).execute()
         return jsonify(response.data)
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
@@ -224,6 +146,45 @@ def delete_history(note_id):
         response = supabase.table('History').delete().eq('id', note_id).execute()
         return jsonify({"status": "success", "message": "Note deleted"})
     except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+@app.route('/collection')
+def collection():
+    return render_template('collection.html')
+
+@app.route('/api/notes_grouped', methods=['GET'])
+def get_notes_grouped():
+    """Fetch all notes grouped by user, sorted alphabetically by name."""
+    try:
+        response = supabase.table('History').select("*, Users(id, first_name, last_name, email)").order('created_at', desc=True).execute()
+        notes = response.data
+
+        # Group notes by user_id
+        grouped = {}
+        for note in notes:
+            user_info = note.get('Users') or {}
+            uid = note['user_id']
+            name = f"{user_info.get('first_name', 'Unknown')} {user_info.get('last_name', '')}".strip() if user_info else f"User #{uid}"
+            email = user_info.get('email', '')
+
+            if uid not in grouped:
+                grouped[uid] = {
+                    "user_id": uid,
+                    "name": name,
+                    "email": email,
+                    "notes": []
+                }
+            grouped[uid]["notes"].append({
+                "id": note['id'],
+                "message": note['message'],
+                "created_at": note['created_at']
+            })
+
+        # Sort users alphabetically by name
+        users_list = sorted(grouped.values(), key=lambda u: u['name'].lower())
+        return jsonify(users_list)
+    except Exception as e:
+        print(f"GROUPED NOTES ERROR: {repr(e)}")
         return jsonify({"status": "error", "message": str(e)}), 500
 
 if __name__ == '__main__':
