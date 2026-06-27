@@ -257,10 +257,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 // Update Stats (Essential Only)
-                document.getElementById('total-notes-count').textContent = notes.length.toLocaleString();
-                document.getElementById('total-users-count').textContent = [...new Set(notes.map(n => n.user_id))].length;
-                document.getElementById('today-notes-count').textContent = notes.filter(n => new Date(n.created_at).toDateString() === new Date().toDateString()).length;
-                document.getElementById('showing-count').textContent = `${notes.length} total community notes`;
+                const totalNotes = document.getElementById('total-notes-count');
+                const totalUsers = document.getElementById('total-users-count');
+                const todayNotes = document.getElementById('today-notes-count');
+                const showingCount = document.getElementById('showing-count');
+
+                if (totalNotes) totalNotes.textContent = notes.length.toLocaleString();
+                if (totalUsers) totalUsers.textContent = [...new Set(notes.map(n => n.user_id))].length;
+                if (todayNotes) todayNotes.textContent = notes.filter(n => new Date(n.created_at).toDateString() === new Date().toDateString()).length;
+                if (showingCount) showingCount.textContent = `${notes.length} total community notes`;
 
                 notes.forEach(note => {
                     const isOwner = userId && String(note.user_id) === String(userId);

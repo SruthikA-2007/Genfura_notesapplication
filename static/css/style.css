@@ -877,7 +877,7 @@ body {
 
 .search-box-top input {
     width: 100%;
-    padding: 10px 16px 10px 40px;
+    padding: 10px 16px 10px 34px;
     border: 1px solid var(--border-color);
     border-radius: 12px;
     background: var(--bg-main);
@@ -1000,6 +1000,12 @@ body {
     margin-bottom: 30px;
 }
 
+.filter-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
 .filter-group i {
     position: absolute;
     left: 14px;
@@ -1013,7 +1019,7 @@ body {
 
 .filter-group input,
 .filter-group select {
-    padding: 10px 16px 10px 42px;
+    padding: 10px 16px 10px 34px;
     border: 1px solid var(--border-color);
     border-radius: 10px;
     background: var(--bg-main);
