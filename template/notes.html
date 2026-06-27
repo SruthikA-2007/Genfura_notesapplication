@@ -98,6 +98,35 @@
 
     </main>
 
+    <!-- Chatbot Widget -->
+    <div class="chatbot-container">
+        <!-- Chat Window -->
+        <div class="chat-window hidden">
+            <div class="chat-header">
+                NoteSync Support
+            </div>
+            <!-- Messages Area -->
+            <div class="chat-body" id="chat-messages">
+                <div class="message bot-message">
+                    Welcome to NoteSync! How can I help you today?
+                </div>
+            </div>
+            <!-- Input Area -->
+            <div class="chat-footer">
+                <form id="chat-form">
+                    <input type="text" id="chat-input" placeholder="Ask a question..." required>
+                    <button type="submit" class="chat-send-btn">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+        <!-- Toggle Button -->
+        <button class="chatbot-toggle-btn">
+            <i class="fa-solid fa-comments"></i>
+        </button>
+    </div>
+
     <!-- Custom Script -->
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
